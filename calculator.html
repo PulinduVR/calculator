@@ -28,7 +28,7 @@
             border-radius: 10px;
             position: relative;
             top: 15px;
-            padding: 15px;
+            padding: 15px !important;
             /* margin-top: 10px; */
         }
         .display-innerbox {
@@ -36,6 +36,8 @@
             width: 100%;
             height: 100%;
             border-radius: 10px;
+            font-size: 45px;
+            padding-left: 5px;
         }
 
         .keypad-outerbox{
@@ -51,7 +53,7 @@
             padding: 5px;
             padding-top: 10px;
         }
-        .key {
+        .key, .eq, .CE, .C, .sqrt {
             background-color: bisque;
             padding: 24px;
             max-height: 50px;
@@ -75,8 +77,8 @@
                 <div class="key-row">
                     <div class="key">%</div>
                     <div class="key">√</div>
-                    <div class="key">CE</div>
-                    <div class="key">C</div>
+                    <div class="CE">CE</div>
+                    <div class="C">C</div>
                 </div>
                 <div class="key-row">
                     <div class="key">7</div>
@@ -88,22 +90,75 @@
                     <div class="key">4</div>
                     <div class="key">5</div>
                     <div class="key">6</div>
-                    <div class="key">÷</div>
+                    <div class="key">/</div>
                 </div>
                 <div class="key-row">
                     <div class="key">1</div>
                     <div class="key">2</div>
                     <div class="key">3</div>
-                    <div class="key">x</div>
+                    <div class="key">*</div>
                 </div>
                 <div class="key-row">
                     <div class="key">0</div>
-                    <div class="key">.</div>
-                    <div class="key">=</div>
-                    <div class="key">+</div>
+                    <div class="key dot">.</div>
+                    <div class="eq">=</div>
+                    <div class="key add">+</div>
                 </div>
             </div>
         </div>
     </div>
+
+    <script>
+        const keypad = document.querySelector('.keypad-outerbox');
+        const display = document.querySelector('.display-innerbox');
+
+        keypad.addEventListener('click', (event) => {
+            const pressedElement = event.target;
+
+            if( pressedElement.classList.contains('key')) {
+                // const displayText = display.textContent;
+                display.textContent += pressedElement.textContent
+            }
+            else if(pressedElement.classList.contains('CE') || pressedElement.classList.contains('C')){
+                display.textContent = ""
+            }
+            else if (pressedElement.classList.contains('eq')) {
+                display.textContent = evaluate(display.textContent).toString();
+            }
+        })
+
+        function evaluate(expression) {
+            let number = "";
+            const index = expression.indexOf('√');
+            let endIndex = index
+            if (expression.includes('√')){
+                for (let i = index+1; i < expression.length; i++) {
+                    if(isNaN(expression[i]) && expression[i] !== '.') {
+                        break;
+                    }
+                    number += expression[i];
+                    endIndex = i;
+                    console.log(number);
+                }
+                expression = expression.slice(0 , index) + `Math.sqrt(${number})` + expression.slice(endIndex +1 , expression.length);
+                console.log(expression);
+            }
+
+            if(expression.includes('%')){
+                number = "";
+                const percentageIndex = expression.indexOf('%');
+                for(let i = percentageIndex -1; i >= 0; i--){
+                    if(isNaN(expression[i]) && expression[i] !== '.') {
+                        break;
+                    }
+                    number += expression[i];
+                    endIndex = i;
+                }
+                number = number.split("").reverse().join("");
+                expression = expression.slice(0, endIndex) + `${number}/100` + expression.slice(percentageIndex+1, expression.length);
+            }
+            return eval(expression).toFixed(5);
+        }
+    </script>
 </body>
 </html>
